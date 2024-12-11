@@ -1,35 +1,25 @@
 #!/bin/bash
 #
-# ---------------------------------------------------------------------------
-# A Simple Script to Configure a Debian or Ubuntu-based Cloud Server Instance
-# ---------------------------------------------------------------------------
-#
+# ------------------ CLOUD SETUP ------------------
+# A helper script to setup a Debian Server Instance
+# -------------------------------------------------
+# --- Galie Media @ https://www.galiemedia.com/ ---
 
-debian-greeting () {
+greeting () {
     sudo echo " "
     echo "+------------------------------------------------------------------------------+"
-    echo "| This script is for a fresh Debian 12 install on a Cloud VM.  It sets up base |"
-    echo "| packages and essential applications to build and deploy the platform of your |"
-    echo "| choice.  If you don't want to proceed, press Ctrl-C now to exit the script.  |"
+    echo "| This script is for a fresh Debian 12 install on either a local or cloud      |"
+    echo "| instance.  It sets up base packages and essential applications to build and  |"
+    echo "| deploy the platform of your choice.                                          |"
+    echo "|                                                                              |"
+    echo "| If you don't want to proceed, press Ctrl-C now to exit the script.           |"
     echo "+------------------------------------------------------------------------------+"
     echo " "
     read -p "If you are ready to continue, press [Enter] to start the script..."
     echo " "
 }
 
-ubuntu-greeting () {
-    sudo echo " "
-    echo "+------------------------------------------------------------------------------+"
-    echo "| This script is for a fresh Ubuntu 24 install on a Cloud VM.  It sets up base |"
-    echo "| packages and essential applications to build and deploy the platform of your |"
-    echo "| choice.  If you don't want to proceed, press Ctrl-C now to exit the script.  |"
-    echo "+------------------------------------------------------------------------------+"
-    echo " "
-    read -p "If you are ready to continue, press [Enter] to start the script..."
-    echo " "
-}
-
-debian-installbase () {
+installbase () {
     echo " "
     echo "Setting up some basics before we begin..."
     echo " "
@@ -42,19 +32,6 @@ debian-installbase () {
     sudo nala purge -y ntp
     sudo nala install -y systemd-timesyncd
     sudo systemctl start systemd-timesyncd
-}
-
-ubuntu-installbase () {
-    echo " "
-    echo "Setting up some basics before we begin..."
-    echo " "
-    sudo apt update && sudo apt upgrade -y
-    sudo apt install -y apt-transport-https ca-certificates needrestart software-properties-common
-    sudo apt install -y curl debian-goodies duf nala nano wget
-    sudo add-apt-repository ppa:utappia/stable
-    sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
-    sudo apt update
-    sudo nala install -y fastfetch ucaresystem-core
 }
 
 ufw-setup () {
@@ -127,33 +104,22 @@ distrocheck () {
             echo "This script is for Debian 12 - Setup helper stopped."
             exit 1
         fi
-        debian-greeting
-        debian-installbase
-    elif [ "$ID" = "ubuntu" ]; then
-        if [ $(echo "$VERSION_ID >= 24.04" | bc) != 1 ]; then
-            echo " "
-            echo "This script is not compatible with your version of Ubuntu."
-            echo " "
-            echo "Your computer is is currently running: $ID $VERSION_ID"
-            echo " "
-            echo "This script is for Ubuntu 24 - Setup helper stopped."
-            exit 1
-        fi
-        ubuntu-greeting
-        ubuntu-installbase
     else 
         echo " "
         echo "This script is not compatible with your distribution."
         echo " "
         echo "Your computer is is currently running: $ID $VERSION_ID"
         echo " "
-        echo "This script is for Debian 12 or Ubuntu 24 - Setup helper stopped."
+        echo "This script is for Debian 12 - setup helper script stopped."
         exit 1
     fi
 }
 
 set -eu
 distrocheck
+greeting
+installbase
+ufw-setup
 installpkgs
 installtailscale
 needrestart
